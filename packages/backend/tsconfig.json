@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution":"NodeNext",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "target": "esnext",
+    "types": [],
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+    "include": ["src/**/*"],
+  // TA SEKCJA BLOKUJE ANALIZĘ FOLDERU PNPM / NODE_MODULES:
+  "exclude": ["node_modules", "dist"]
+}

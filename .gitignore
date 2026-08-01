@@ -1,0 +1,32 @@
+# dependencies
+node_modules
+
+# build
+dist
+build
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# pnpm
+.pnpm-store
+
+# coverage
+coverage
+
+#notes
+mynotes
