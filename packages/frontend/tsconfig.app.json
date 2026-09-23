@@ -10,7 +10,7 @@
 
 
     /* 2. Definicja aliasów */
-   
+  
     "paths": {
       "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],

@@ -1,32 +1,32 @@
-// import express from "express";
-// import cors from "cors";
-// import { UserDbSchema, UserDomainSchema } from "@project/shared";
-// //import { connectDB } from "./config/database.js"
-// const app = express();
-
-// app.use(cors());
-// app.use(express.json());
-
-// app.get("/health", (req, res) => {
-//   res.json({ status: "ok" });
-// });
-
-// const PORT = 3000;
-
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
-
+import { config } from "#config";
 import { createApp } from "./app.js";
-
-const PORT = 3000;
+import { logger } from "#http";
 
 async function start() {
-  const app = await createApp();
+  try {
+    const { app, mongoClient, redisClient, identityModule } =
+      await createApp(config);
 
-  app.listen(PORT, () => {
-    console.log(`Listening on ${PORT}`);
-  });
+    await Promise.all([identityModule.initDatabase()]);
+
+    const server = app.listen(config.server.port, () => {
+      logger.info(`Server listening on port ${config.server.port}`);
+    });
+    const shutdown = async (signal: string) => {
+      logger.info(`\nReceived ${signal}. Shutting down gracefully...`);
+      server.close(async () => {
+        logger.info("HTTP server closed.");
+        await Promise.all([mongoClient.close(), redisClient.quit()]);
+
+        process.exit(0);
+      });
+    };
+    // listening to (Ctrl+C / Docker stop)
+    process.on("SIGINT", () => shutdown("SIGINT"));
+    process.on("SIGTERM", () => shutdown("SIGTERM"));
+  } catch (err: unknown) {
+    logger.error("Fatal error during server startup:");
+    process.exit(1);
+  }
 }
-
 start();

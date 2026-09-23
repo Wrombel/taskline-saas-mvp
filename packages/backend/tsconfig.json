@@ -17,7 +17,13 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "#infrastructure": ["./src/infrastructure/index.ts"],
+      "#http": ["./src/http/index.ts"],
+      "#infrastructure/*": ["./src/infrastructure/*"],
+      "#config": ["./src/config/index.ts"],
+    }
   },
     "include": ["src/**/*"],
   // TA SEKCJA BLOKUJE ANALIZĘ FOLDERU PNPM / NODE_MODULES:
