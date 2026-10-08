@@ -4,6 +4,7 @@ import { createUserAlreadyExistsError } from "../_domain/user/user.errors.js";
 import { createDatabaseError } from "#infrastructure";
 import { logger } from "#http";
 import { UserMapper } from "../_persistence/user.mapper.js";
+import type { ClientSession } from "mongodb";
 import type { UserDb } from "../_persistence/user.db.js";
 import type { User } from "@project/shared";
 import type { UserRepository } from "./user-repository.js";
@@ -39,9 +40,10 @@ export const findUserByEmail = (
 export const saveUser = (
   collection: Collection<UserDb>,
   user: User,
+  session: ClientSession,
 ): ResultAsync<void, DatabaseError | UserAlreadyExistsError> => {
   const userDb: UserDb = UserMapper.toDocument(user);
-  return ResultAsync.fromPromise(collection.insertOne(userDb), (e: unknown) => {
+  return ResultAsync.fromPromise(collection.insertOne(userDb, session), (e: unknown) => {
     if (e instanceof MongoServerError && e.code === 11000) {
       return createUserAlreadyExistsError(user.email);
     }
@@ -51,7 +53,7 @@ export const saveUser = (
 
 export const createUserRepository = ({ usersCollection }: Dependencies): UserRepository => {
   return {
-    create: (user) => saveUser(usersCollection, user),
+    create: (user, session) => saveUser(usersCollection, user, session),
     findByEmail: (email) => findUserByEmail(usersCollection, email),
     existsByEmail: (email) => userExistsByEmail(usersCollection, email),
   };

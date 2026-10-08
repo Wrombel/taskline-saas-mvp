@@ -5,6 +5,7 @@ import { createMappingError } from "#infrastructure";
 import { UserId } from "@project/shared";
 import { Email, HashedPassword } from "@project/shared";
 import { HashResetPasswordToken, HashActiveUserProfileToken } from "@project/shared";
+import { SessionVersion } from "@project/shared";
 import type { User } from "@project/shared";
 import type { UserDb } from "./user.db.js";
 import type { MappingError } from "#infrastructure";
@@ -26,6 +27,7 @@ export const UserMapper = {
       },
       hashedPassword: HashedPassword(validDoc.hashedPassword),
       state: validDoc.state,
+      sessionVersion: SessionVersion(validDoc.sessionVersion),
       passwordTokenHash: validDoc.passwordTokenHash ? HashResetPasswordToken(validDoc.passwordTokenHash) : null,
       passwordTokenExpiresAt: validDoc.passwordTokenExpiresAt,
       profileTokenHash: validDoc.profileTokenHash ? HashActiveUserProfileToken(validDoc.profileTokenHash) : null,
@@ -42,6 +44,7 @@ export const UserMapper = {
         lastName: domain.fullName.lastName,
       },
       hashedPassword: domain.hashedPassword,
+      sessionVersion: domain.sessionVersion,
       state: domain.state,
       passwordTokenHash: domain.passwordTokenHash ? HashResetPasswordToken(domain.passwordTokenHash) : null,
       passwordTokenExpiresAt: domain.passwordTokenExpiresAt,

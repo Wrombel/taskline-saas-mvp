@@ -21,6 +21,7 @@
     "paths": {
       "#infrastructure": ["./src/infrastructure/index.ts"],
       "#http": ["./src/http/index.ts"],
+      "#helpers": ["./src/helpers/index.ts"],
       "#infrastructure/*": ["./src/infrastructure/*"],
       "#config": ["./src/config/index.ts"],
     }

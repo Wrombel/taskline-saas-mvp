@@ -9,6 +9,7 @@ export const UserDbSchema = z.object({
     lastName: z.string(),
   }),
   hashedPassword: z.string(),
+  sessionVersion: z.number(),
   state: UserStateSchema,
   passwordTokenHash: z.string().nullable(),
   passwordTokenExpiresAt: z.date().nullable(),

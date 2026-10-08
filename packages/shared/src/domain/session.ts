@@ -6,6 +6,8 @@ export const SessionSchema = z.object({
   id: SessionIdSchema,
   userId: UserIdSchema,
   sessionHash: HashSessionTokenSchema,
+  rawUserAgent: z.string().nullable(),
+  deviceInfo: z.string(),
   tenantContext: MembershipIdSchema.nullable(),
   createdAt: z.date(),
   expiresAt: z.date(),

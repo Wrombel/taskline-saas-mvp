@@ -4,6 +4,8 @@ import { logger } from "#http";
 export async function createRedisClient(URL: string): Promise<Redis> {
   const redis = new Redis(URL || "redis://localhost:6379", {
     maxRetriesPerRequest: 3,
+    enableOfflineQueue: false,
+    commandTimeout: 500,
     lazyConnect: true,
   });
 

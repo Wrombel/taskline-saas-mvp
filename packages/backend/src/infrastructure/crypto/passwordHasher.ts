@@ -1,6 +1,6 @@
 import argon2 from "@node-rs/argon2";
 import { ResultAsync } from "neverthrow";
-import type { HashedPassword } from "@project/shared";
+import { HashedPassword } from "@project/shared";
 
 export type PasswordHashingError = {
   readonly _tag: "PasswordHashingError";
@@ -27,10 +27,12 @@ export const createPasswordVerificationError = (cause?: unknown): PasswordVerifi
 
 export const createArgon2PasswordHasher = () => {
   return {
-    hash(password: string): ResultAsync<string, PasswordHashingError> {
-      return ResultAsync.fromPromise(argon2.hash(password), (error) => createPasswordHashingError(error));
+    hash(password: string): ResultAsync<HashedPassword, PasswordHashingError> {
+      return ResultAsync.fromPromise(argon2.hash(password), (error) => createPasswordHashingError(error)).map(
+        HashedPassword,
+      );
     },
-    verify(password: string, hash: string): ResultAsync<boolean, PasswordVerificationError> {
+    verify(password: string, hash: HashedPassword): ResultAsync<boolean, PasswordVerificationError> {
       return ResultAsync.fromPromise(argon2.verify(hash, password), (error) => createPasswordVerificationError(error));
     },
   };

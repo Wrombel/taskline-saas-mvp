@@ -1,10 +1,13 @@
 import type { Request, Response } from "express";
 import { RegisterRequestSchema } from "@project/shared";
 import { handleRegisterError } from "./error-handler.js";
+import { Email } from "@project/shared";
+import { getShortDeviceDescription } from "#infrastructure";
 import type { RegisterHandler } from "./handler.js";
 import type { DatabaseError, MappingError } from "#infrastructure";
 import type { PasswordHashingError } from "#infrastructure";
 import type { UserAlreadyExistsError } from "../_domain/user/user.errors.js";
+import { logger } from "#http";
 type Dependencies = {
   registerHandler: RegisterHandler;
 };
@@ -21,7 +24,15 @@ export const createRegisterController =
       });
       return;
     }
-    await registerHandler(command.data).match(
+    const rawUserAgent = req.get("user-agent") ?? null;
+    const deviceInfo = getShortDeviceDescription(rawUserAgent);
+
+    await registerHandler({
+      ...command.data,
+      email: Email(command.data.email),
+      rawUserAgent,
+      deviceInfo,
+    }).match(
       () => {
         res.status(201).json({ message: "User registered" });
       },

@@ -9,6 +9,9 @@ export const Email = (value: string) => value as Email;
 export const HashedPasswordSchema = z.string().brand<"HashedPassword">();
 export const HashedPassword = (value: string) => value as HashedPassword;
 
+export const SessionVersionSchema = z.number().int().nonnegative().brand<"SessionVersion">();
+export const SessionVersion = (value: number) => value as SessionVersion;
+
 export const UserSchema = z.object({
   id: UserIdSchema,
   email: EmailSchema,
@@ -21,6 +24,7 @@ export const UserSchema = z.object({
   passwordTokenHash: HashResetPasswordTokenSchema.nullable(),
   passwordTokenExpiresAt: z.date().nullable(),
   profileTokenHash: HashActiveUserProfileTokenSchema.nullable(),
+  sessionVersion: SessionVersionSchema,
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -28,3 +32,4 @@ export const UserSchema = z.object({
 export type HashedPassword = z.infer<typeof HashedPasswordSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type Email = z.infer<typeof EmailSchema>;
+export type SessionVersion = z.infer<typeof SessionVersionSchema>;
