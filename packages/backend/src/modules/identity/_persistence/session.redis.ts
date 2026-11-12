@@ -6,7 +6,8 @@ export const SessionRedisSchema = z.object({
   userId: UserIdSchema,
   tenantContext: MembershipIdSchema.nullable(),
   cachedSessionVersion: SessionVersionSchema,
-  SessionExpiresAt: z.coerce.date(),
+  expiresAt: z.coerce.date(),
+  maxExpiresAt: z.coerce.date(),
 });
 
 export type SessionRedis = z.infer<typeof SessionRedisSchema>;

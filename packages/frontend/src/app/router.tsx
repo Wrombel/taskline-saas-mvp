@@ -1,29 +1,57 @@
 import { createBrowserRouter } from "react-router";
-import LoginPage from "../features/auth/LoginPage";
-import LoginPageV2 from "../features/auth/LoginPageV2";
-const example = [
-  {
-    path: "/ex2",
-    element: <div>kappa1</div>,
-  },
-  {
-    path: "/ex3",
-    element: <div>kappa2</div>,
-  },
-  {
-    path: "/ex4",
-    element: <div>kappa3</div>,
-  },
-];
+
+import { RootLayout } from "./layouts/RootLayout";
+import { RouteError } from "./components/RouteError";
+import { guestOnly, requireAuth } from "@/features/identity/guards";
+import { queryClient } from "@/shared/lib/queryClient";
 
 export const router = createBrowserRouter([
-  ...example,
   {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/login2",
-    element: <LoginPageV2 />,
+    path: "/",
+    element: <RootLayout />,
+    errorElement: <RouteError />,
+    children: [
+      // tylko dla niezalogowanych
+      {
+        loader: guestOnly(queryClient),
+        children: [
+          {
+            path: "login",
+            lazy: async () => {
+              const { LoginPage } = await import("../features/identity/login/LoginPage");
+              return { Component: LoginPage };
+            },
+          },
+          {
+            path: "register",
+            lazy: async () => {
+              const { RegisterPage } = await import("../features/identity/register/RegisterPage");
+              return { Component: RegisterPage };
+            },
+          },
+        ],
+      },
+      // tylko dla zalogowanych
+      {
+        loader: requireAuth(queryClient),
+        children: [
+          {
+            index: true,
+            lazy: async () => {
+              const { HomePage } = await import("../features/tenant/HomePage");
+              return { Component: HomePage };
+            },
+          },
+          // kolejne chronione trasy...
+        ],
+      },
+      {
+        path: "*",
+        lazy: async () => {
+          const { NotFoundPage } = await import("./components/NotFoundPage");
+          return { Component: NotFoundPage };
+        },
+      },
+    ],
   },
 ]);

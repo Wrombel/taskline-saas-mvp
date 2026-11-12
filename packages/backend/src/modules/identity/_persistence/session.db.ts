@@ -10,6 +10,7 @@ export const SessionDbSchema = z.object({
   tenantContext: z.instanceof(ObjectId).nullable(),
   createdAt: z.date(),
   expiresAt: z.date(),
+  version: z.number(),
   maxExpiresAt: z.date(),
 });
 

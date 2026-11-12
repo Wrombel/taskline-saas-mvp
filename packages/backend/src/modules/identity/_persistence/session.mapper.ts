@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { SessionDbSchema } from "./session.db.js";
 import { createMappingError } from "#infrastructure";
 import { Result } from "neverthrow";
-import { UserId, SessionId, MembershipId, TenantId, TeamId, HashSessionToken } from "@project/shared";
+import { UserId, SessionId, MembershipId, SessionVersion, HashSessionToken } from "@project/shared";
 import type { SessionDb } from "./session.db.js";
 import type { Session } from "@project/shared";
 import type { MappingError } from "#infrastructure";
@@ -23,6 +23,7 @@ export const SessionMapper = {
             ? MembershipId(validDoc.tenantContext.toString())
             : validDoc.tenantContext,
           createdAt: validDoc.createdAt,
+          version: SessionVersion(validDoc.version),
           expiresAt: validDoc.expiresAt,
           maxExpiresAt: validDoc.maxExpiresAt,
         };
@@ -39,6 +40,7 @@ export const SessionMapper = {
       rawUserAgent: domain.rawUserAgent,
       deviceInfo: domain.deviceInfo,
       tenantContext: domain.tenantContext ? new ObjectId(domain.tenantContext) : null,
+      version: domain.version,
       createdAt: domain.createdAt,
       expiresAt: domain.expiresAt,
       maxExpiresAt: domain.maxExpiresAt,

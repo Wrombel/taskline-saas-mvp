@@ -1,4 +1,4 @@
-import { ok, err, errAsync, ResultAsync } from "neverthrow";
+import { okAsync, err, errAsync, ResultAsync } from "neverthrow";
 import { createUserAlreadyExistsError } from "../_domain/user/user.errors.js";
 import type { MongoClient } from "mongodb";
 import type { RegisterRequestSchema } from "@project/shared";
@@ -14,6 +14,9 @@ import type { UserId, SessionId } from "@project/shared";
 import type { SessionFactory } from "../_domain/session/session.js";
 import type { UserFactory } from "../_domain/user/user.js";
 import type { SessionStore } from "../_infra/redis/SessionStore.js";
+import { RawSessionToken } from "#infrastructure";
+import type { RedisStoreError } from "#infrastructure";
+import type { SessionRedis } from "../_persistence/session.redis.js";
 import { logger } from "#http";
 
 type Dependencies = {
@@ -26,12 +29,13 @@ type Dependencies = {
   sessionStore: SessionStore;
 };
 type HandlerErrors = UserAlreadyExistsError | DatabaseError | PasswordHashingError | MappingError;
+
 export type RegisterCommand = Omit<RegisterRequestSchema, "email"> & {
   email: Email;
   rawUserAgent: string | null;
   deviceInfo: string;
 };
-export type RegisterHandler = (command: RegisterCommand) => ResultAsync<void, HandlerErrors>;
+export type RegisterHandler = (command: RegisterCommand) => ResultAsync<RawSessionToken, HandlerErrors>;
 
 export const createRegisterHandler = ({
   userRepository,
@@ -53,12 +57,34 @@ export const createRegisterHandler = ({
       })
       .andThen((hashedPassword) => {
         const { rawProfileToken, user } = userFactory.prepareUser(personalInfo, hashedPassword, email);
-        const { rawToken, session } = sessionFactory.prepareSession(user.id, rawUserAgent, deviceInfo);
-        return runTransaction((mongoSession) => {
-          return userRepository
+        const { rawToken, session } = sessionFactory.prepareSession(
+          user.id,
+          rawUserAgent,
+          deviceInfo,
+          user.sessionVersion,
+        );
+        const cacheEntry: SessionRedis = {
+          sessionId: session.id,
+          userId: session.userId,
+          tenantContext: session.tenantContext,
+          cachedSessionVersion: user.sessionVersion,
+          expiresAt: session.expiresAt,
+          maxExpiresAt: session.maxExpiresAt,
+        };
+        return runTransaction((mongoSession) =>
+          userRepository
             .create(user, mongoSession)
-            .andThen(() => sessionRepository.create(session, mongoSession));
-        });
+            .andThen(() => sessionRepository.create(session, mongoSession))
+            .map(() => ({ rawToken, sessionHash: session.sessionHash, cacheEntry })),
+        ).andThen(({ rawToken, sessionHash, cacheEntry }) =>
+          sessionStore
+            .set(sessionHash, cacheEntry)
+            .orElse((error) => {
+              logger.warn({ err: error, sessionHash }, "Failed to write session cache; continuing");
+              return okAsync(undefined);
+            })
+            .map(() => RawSessionToken(rawToken)),
+        );
       });
   };
 };

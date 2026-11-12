@@ -34,9 +34,8 @@ export const slideSession = (
   collection: SessionCollection,
   sessionId: SessionId,
   newExpiresAt: Date,
-): ResultAsync<void, DatabaseError> => {
-  const now = new Date();
-
+  now: Date,
+): ResultAsync<boolean, DatabaseError> => {
   return ResultAsync.fromPromise(
     collection.updateOne(
       {
@@ -47,7 +46,7 @@ export const slideSession = (
       { $set: { expiresAt: newExpiresAt } },
     ),
     createDatabaseError,
-  ).map(() => undefined);
+  ).map((result) => result.matchedCount > 0);
 };
 
 export const setTenantContextSession = (
@@ -88,7 +87,7 @@ export const revokeAllByUserIdSession = (
 export const findActiveByHashSession = (
   collection: SessionCollection,
   sessionHash: HashSessionToken,
-  now = new Date(),
+  now: Date,
 ): ResultAsync<Session | null, DatabaseError | MappingError> => {
   return ResultAsync.fromPromise(
     collection.findOne({
@@ -125,9 +124,9 @@ type Dependencies = {
 export const createSessionRepository = ({ sessionCollection }: Dependencies): SessionRepository => ({
   create: (session, mongoSession) => createSession(sessionCollection, session, mongoSession),
   revoke: (sessionId) => revokeSession(sessionCollection, sessionId),
-  slide: (sessionId, newExpiresAt) => slideSession(sessionCollection, sessionId, newExpiresAt),
+  slide: (sessionId, newExpiresAt, now) => slideSession(sessionCollection, sessionId, newExpiresAt, now),
   setTenantContext: (sessionId, tenantContext) => setTenantContextSession(sessionCollection, sessionId, tenantContext),
   revokeAllByUserId: (userId, mongoSession) => revokeAllByUserIdSession(sessionCollection, userId, mongoSession),
-  findActiveByHash: (sessionHash) => findActiveByHashSession(sessionCollection, sessionHash),
+  findActiveByHash: (sessionHash, now) => findActiveByHashSession(sessionCollection, sessionHash, now),
   findAllActiveByUserId: (userId) => findAllActiveByUserIdSession(sessionCollection, userId),
 });

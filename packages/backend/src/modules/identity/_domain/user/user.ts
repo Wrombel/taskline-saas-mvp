@@ -38,7 +38,7 @@ export const makePrepareUser = (
         lastName: personalInfo.lastName,
       },
       hashedPassword: hashedPassword,
-      state: USER_STATUS.INACTIVE,
+      state: USER_STATUS.UNVERIFIED,
       passwordTokenHash: null,
       passwordTokenExpiresAt: null,
       profileTokenHash: profileTokenHash,

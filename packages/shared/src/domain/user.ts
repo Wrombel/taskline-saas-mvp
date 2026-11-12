@@ -2,15 +2,13 @@ import { z } from "zod";
 import { UserIdSchema } from "./_indetity.js";
 import { HashResetPasswordTokenSchema, HashActiveUserProfileTokenSchema } from "./_hashes.js";
 import { UserStateSchema } from "./_states.js";
+import { SessionVersionSchema } from "./session.js";
 
 export const EmailSchema = z.email().brand<"Email">();
 export const Email = (value: string) => value as Email;
 
 export const HashedPasswordSchema = z.string().brand<"HashedPassword">();
 export const HashedPassword = (value: string) => value as HashedPassword;
-
-export const SessionVersionSchema = z.number().int().nonnegative().brand<"SessionVersion">();
-export const SessionVersion = (value: number) => value as SessionVersion;
 
 export const UserSchema = z.object({
   id: UserIdSchema,
@@ -32,4 +30,3 @@ export const UserSchema = z.object({
 export type HashedPassword = z.infer<typeof HashedPasswordSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type Email = z.infer<typeof EmailSchema>;
-export type SessionVersion = z.infer<typeof SessionVersionSchema>;

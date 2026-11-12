@@ -1,0 +1,42 @@
+# Uruchomienie: docker compose -f docker/docker-compose.test.yml up -d --wait
+# Zatrzymanie:  docker compose -f docker/docker-compose.test.yml down
+name: project-test
+
+services:
+  mongodb-test:
+    image: mongo:6 # ta sama wersja co dev/prod
+    command: ["mongod", "--replSet", "rs0", "--port", "27018", "--bind_ip_all"]
+    ports:
+      - "127.0.0.1:27018:27018" # tylko localhost, port inny niż dev (27017)
+    tmpfs:
+      - /data/db # dane w RAM, znikają po `down`
+    healthcheck:
+      # Idempotentnie: inicjalizuje replica set, jeśli jeszcze go nie ma,
+      # i jest "healthy" dopiero gdy węzeł jest PRIMARY.
+      test:
+        - CMD
+        - mongosh
+        - --port
+        - "27018"
+        - --quiet
+        - --eval
+        - |
+          try { rs.status() } catch (e) {
+            rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "127.0.0.1:27018" }] })
+          }
+          if (!db.hello().isWritablePrimary) quit(1)
+      interval: 2s
+      timeout: 10s
+      retries: 30
+      start_period: 5s
+
+  redis-test:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 15

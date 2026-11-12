@@ -4,8 +4,7 @@ import { logger } from "#http";
 
 async function start() {
   try {
-    const { app, mongoClient, redisClient, identityModule } =
-      await createApp(config);
+    const { app, mongoClient, redisClient, identityModule } = await createApp(config);
 
     await Promise.all([identityModule.initDatabase()]);
 
@@ -25,7 +24,7 @@ async function start() {
     process.on("SIGINT", () => shutdown("SIGINT"));
     process.on("SIGTERM", () => shutdown("SIGTERM"));
   } catch (err: unknown) {
-    logger.error("Fatal error during server startup:");
+    logger.fatal({ err }, "Fatal error during server startup");
     process.exit(1);
   }
 }

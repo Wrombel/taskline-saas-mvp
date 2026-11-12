@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const USER_STATUS = {
-  INACTIVE: "inactive",
+  UNVERIFIED: "unverified",
   ACTIVE: "active",
   DEACTIVATED: "deactivated",
 } as const;
