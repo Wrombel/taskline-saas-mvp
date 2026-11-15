@@ -6,15 +6,17 @@ import { logger } from "#http";
 import { UserMapper } from "../_persistence/user.mapper.js";
 import { AuthStateSchema } from "../authenticate/auth-state.js";
 import { GetUserProfileSchema } from "@project/shared";
+import { UserAuthSchema } from "../login/user-auth.js";
 import type { ClientSession } from "mongodb";
 import type { UserDb } from "../_persistence/user.db.js";
-import type { User } from "@project/shared";
+import type { User, Email } from "@project/shared";
 import type { UserId } from "@project/shared";
 import type { AuthState } from "../authenticate/auth-state.js";
 import type { UserRepository } from "./user-repository.js";
 import type { DatabaseError, MappingError } from "#infrastructure";
 import type { UserAlreadyExistsError } from "../_domain/user/user.errors.js";
 import type { GetUserProfile } from "@project/shared";
+import type { UserAuth } from "../login/user-auth.js";
 type Dependencies = {
   usersCollection: Collection<UserDb>;
 };
@@ -93,6 +95,30 @@ export const findUserProfileById = (
     return profile.success ? ok(profile.data) : err(createMappingError("UserProfile", userId, profile.error));
   });
 
+export const findUserAuthByEmail = (
+  collection: Collection<UserDb>,
+  email: Email,
+): ResultAsync<UserAuth | null, DatabaseError | MappingError> =>
+  ResultAsync.fromPromise(
+    collection.findOne(
+      { email, state: { $ne: "deactivated" } },
+      { projection: { _id: 1, email: 1, hashedPassword: 1, state: 1, sessionVersion: 1 } },
+    ),
+    createDatabaseError,
+  ).andThen((userDb) => {
+    if (!userDb) return ok(null);
+
+    const userAuth = UserAuthSchema.safeParse({
+      id: userDb._id.toString(),
+      email: userDb.email,
+      hashedPassword: userDb.hashedPassword,
+      state: userDb.state,
+      sessionVersion: userDb.sessionVersion,
+    });
+
+    return userAuth.success ? ok(userAuth.data) : err(createMappingError("UserAuth", email, userAuth.error));
+  });
+
 export const saveUser = (
   collection: Collection<UserDb>,
   user: User,
@@ -113,6 +139,7 @@ export const createUserRepository = ({ usersCollection }: Dependencies): UserRep
     findByEmail: (email) => findUserByEmail(usersCollection, email),
     findById: (userId) => findUserById(usersCollection, userId),
     findUserProfileById: (userId) => findUserProfileById(usersCollection, userId),
+    findUserAuthByEmail: (email) => findUserAuthByEmail(usersCollection, email),
     existsByEmail: (email) => userExistsByEmail(usersCollection, email),
     findAuthState: (userId) => findAuthStateById(usersCollection, userId),
   };

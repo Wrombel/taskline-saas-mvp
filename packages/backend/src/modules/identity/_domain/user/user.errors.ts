@@ -10,6 +10,12 @@ export type UserAlreadyExistsError = {
   readonly message: string;
 };
 
+export type UserDeactivatedError = {
+  readonly _tag: "UserDeactivatedError";
+  readonly id: string;
+  readonly message: string;
+};
+
 // --- FACTORIES ---
 export const createUserNotFoundError = (id: string): UserNotFoundError => ({
   _tag: "UserNotFoundError",
@@ -23,4 +29,10 @@ export const createUserAlreadyExistsError = (
   _tag: "UserAlreadyExistsError",
   email,
   message: `User with email ${email} already exists.`,
+});
+
+export const createUserDeactivatedError = (id: string): UserDeactivatedError => ({
+  _tag: "UserDeactivatedError",
+  id,
+  message: `User with id ${id} is deactivated.`,
 });
