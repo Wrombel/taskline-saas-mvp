@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 
 import { RootLayout } from "./layouts/RootLayout";
+import { AuthenticatedLayout } from "./layouts/AuthenticatedLayout";
 import { RouteError } from "./components/RouteError";
 import { guestOnly, requireAuth } from "@/features/identity/guards";
 import { queryClient } from "@/shared/lib/queryClient";
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
       // tylko dla zalogowanych
       {
         loader: requireAuth(queryClient),
+        element: <AuthenticatedLayout />,
         children: [
           {
             index: true,

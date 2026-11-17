@@ -32,10 +32,8 @@ export function RegisterPage() {
     // values to już wynik parsowania schematu (email po trim + lowercase)
     mutate(values, {
       onSuccess: () => {
-        enqueueSnackbar("Konto utworzone. Możesz się zalogować.", {
-          variant: "success",
-        });
-        void navigate("/login");
+        enqueueSnackbar("Konto utworzone. Zalogowano.", { variant: "success" });
+        void navigate("/");
       },
       onError: (error) => {
         if (isAxiosError(error) && error.response?.status === 409) {

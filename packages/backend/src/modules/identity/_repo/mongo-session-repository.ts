@@ -23,9 +23,9 @@ export const createSession = (
 
 export const revokeSession = (
   collection: SessionCollection,
-  sessionId: SessionId,
+  sessionHash: HashSessionToken,
 ): ResultAsync<void, DatabaseError> => {
-  return ResultAsync.fromPromise(collection.deleteOne({ _id: new ObjectId(sessionId) }), createDatabaseError).map(
+  return ResultAsync.fromPromise(collection.deleteOne({ sessionHash }), createDatabaseError).map(
     () => undefined,
   );
 };
@@ -123,7 +123,7 @@ type Dependencies = {
 
 export const createSessionRepository = ({ sessionCollection }: Dependencies): SessionRepository => ({
   create: (session, mongoSession) => createSession(sessionCollection, session, mongoSession),
-  revoke: (sessionId) => revokeSession(sessionCollection, sessionId),
+  revoke: (sessionHash) => revokeSession(sessionCollection, sessionHash),
   slide: (sessionId, newExpiresAt, now) => slideSession(sessionCollection, sessionId, newExpiresAt, now),
   setTenantContext: (sessionId, tenantContext) => setTenantContextSession(sessionCollection, sessionId, tenantContext),
   revokeAllByUserId: (userId, mongoSession) => revokeAllByUserIdSession(sessionCollection, userId, mongoSession),

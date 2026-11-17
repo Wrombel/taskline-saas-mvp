@@ -17,6 +17,10 @@ import { createAuthenticateSessionUseCase } from "./authenticate/authenticateSes
 import { createAuthGuard } from "../../http/guards/auth.guard.js";
 import { createGetUserProfileHandler } from "./get-user/handler.js";
 import { createGetUserProfileController } from "./get-user/controller.js";
+import { createLoginController } from "./login/controller.js";
+import { createLoginHandler } from "./login/handler.js";
+import { createLogoutController } from "./logout/controller.js";
+import { createLogoutHandler } from "./logout/handler.js";
 import type { UserDb } from "./_persistence/user.db.js";
 import type { SessionDb } from "./_persistence/session.db.js";
 import type { Collection, Db, MongoClient } from "mongodb";
@@ -85,14 +89,30 @@ export const createIdentityModule = ({
     userFactory,
     sessionStore,
   });
+  const loginHandler = createLoginHandler({
+    userRepository,
+    sessionRepository,
+    passwordHasher,
+    sessionFactory,
+    sessionStore,
+  });
   const getUserProfileHandler = createGetUserProfileHandler({ userRepository });
+  const logoutHandler = createLogoutHandler({
+    hashToken: generateHashToken.sessionHash,
+    sessionRepository,
+    sessionStore,
+  });
   const registerController = createRegisterController({
     registerHandler,
     setSessionCookie,
   });
+  const loginController = createLoginController({ loginHandler, setSessionCookie });
   const getUserProfileController = createGetUserProfileController({ getUserProfileHandler });
+  const logoutController = createLogoutController({ logoutHandler });
 
   router.post("/register", registerController);
+  router.post("/login", loginController);
+  router.post("/logout", logoutController);
   router.get("/me", authGuard, getUserProfileController);
   return {
     router,
