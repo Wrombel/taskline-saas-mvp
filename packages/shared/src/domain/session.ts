@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SessionIdSchema, UserIdSchema, MembershipIdSchema } from "./_indetity.js";
+import { SessionIdSchema, UserIdSchema, MembershipIdSchema } from "./_identity.js";
 import { HashSessionTokenSchema } from "./_hashes.js";
 
 export const SessionVersionSchema = z.number().int().nonnegative().brand<"SessionVersion">();

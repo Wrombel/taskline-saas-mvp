@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UserIdSchema } from "./_indetity.js";
+import { UserIdSchema } from "./_identity.js";
 import { HashResetPasswordTokenSchema, HashActiveUserProfileTokenSchema } from "./_hashes.js";
 import { UserStateSchema } from "./_states.js";
 import { SessionVersionSchema } from "./session.js";

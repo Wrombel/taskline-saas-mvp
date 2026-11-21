@@ -1,4 +1,4 @@
-export * from "./domain/_indetity.js";
+export * from "./domain/_identity.js";
 export * from "./domain/_hashes.js";
 export * from "./domain/_states.js";
 export * from "./domain/user.js";

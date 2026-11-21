@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UserIdSchema } from "../../domain/_indetity.js";
+import { UserIdSchema } from "../../domain/_identity.js";
 
 export const GetUserProfileSchema = z.object({
   id: UserIdSchema,
