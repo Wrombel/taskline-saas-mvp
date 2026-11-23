@@ -8,6 +8,7 @@ export const UserDbSchema = z.object({
     firstName: z.string(),
     lastName: z.string(),
   }),
+  ownedTenantCount: z.number().int().nonnegative(),
   hashedPassword: z.string(),
   sessionVersion: z.number(),
   state: UserStateSchema,

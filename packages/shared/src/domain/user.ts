@@ -17,6 +17,7 @@ export const UserSchema = z.object({
     firstName: z.string(),
     lastName: z.string(),
   }),
+  ownedTenantCount: z.number().int().nonnegative(),
   hashedPassword: HashedPasswordSchema,
   state: UserStateSchema,
   passwordTokenHash: HashResetPasswordTokenSchema.nullable(),

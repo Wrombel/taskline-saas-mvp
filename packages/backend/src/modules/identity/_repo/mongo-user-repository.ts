@@ -6,6 +6,7 @@ import { logger } from "#http";
 import { UserMapper } from "../_persistence/user.mapper.js";
 import { AuthStateSchema } from "../authenticate/auth-state.js";
 import { GetUserProfileSchema } from "@project/shared";
+import { USER_STATUS } from "@project/shared";
 import { UserAuthSchema } from "../login/user-auth.js";
 import type { ClientSession } from "mongodb";
 import type { UserDb } from "../_persistence/user.db.js";
@@ -133,9 +134,32 @@ export const saveUser = (
   }).map(() => undefined);
 };
 
+export const reserveOwnedTenantSlot = (
+  collection: Collection<UserDb>,
+  userId: UserId,
+  limits: { unverified: number; active: number },
+  session: ClientSession,
+): ResultAsync<boolean, DatabaseError> =>
+  ResultAsync.fromPromise(
+    collection.updateOne(
+      {
+        _id: new ObjectId(userId),
+        $or: [
+          { state: USER_STATUS.UNVERIFIED, ownedTenantCount: { $lt: limits.unverified } },
+          { state: USER_STATUS.ACTIVE, ownedTenantCount: { $lt: limits.active } },
+        ],
+      },
+      { $inc: { ownedTenantCount: 1 } },
+      { session },
+    ),
+    createDatabaseError,
+  ).map((result) => result.modifiedCount === 1);
+
 export const createUserRepository = ({ usersCollection }: Dependencies): UserRepository => {
   return {
     create: (user, mongoSession) => saveUser(usersCollection, user, mongoSession),
+    reserveOwnedTenantSlot: (userId, limits, session) =>
+      reserveOwnedTenantSlot(usersCollection, userId, limits, session),
     findByEmail: (email) => findUserByEmail(usersCollection, email),
     findById: (userId) => findUserById(usersCollection, userId),
     findUserProfileById: (userId) => findUserProfileById(usersCollection, userId),

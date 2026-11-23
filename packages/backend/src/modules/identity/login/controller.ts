@@ -1,4 +1,3 @@
-
 import type { Request, Response } from "express";
 import { Email, LoginRequestSchema, createUnauthorizedError } from "@project/shared";
 import { match } from "ts-pattern";

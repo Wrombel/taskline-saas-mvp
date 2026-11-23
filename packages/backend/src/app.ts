@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import { logger } from "#http";
 import { connectDB } from "#infrastructure";
 import { createIdentityModule } from "./modules/identity/index.js";
+import { createTenantModule } from "./modules/tenant/index.js";
 import { createRedisClient } from "#infrastructure";
 import { globalErrorHandler } from "./http/index.js";
 import { createSetSessionCookie } from "#helpers";
@@ -12,11 +13,13 @@ import type { MongoClient } from "mongodb";
 import type { Application } from "express";
 import type { AppConfig } from "./config/env.js";
 import type { IdentityModule } from "./modules/identity/index.js";
+import type { TenantModule } from "./modules/tenant/index.js";
 interface AppContext {
   app: Application;
   mongoClient: MongoClient;
   redisClient: Redis;
   identityModule: IdentityModule;
+  tenantModule: TenantModule;
 }
 
 export async function createApp(config: AppConfig): Promise<AppContext> {
@@ -38,8 +41,14 @@ export async function createApp(config: AppConfig): Promise<AppContext> {
     sessionConfig: config.session,
     setSessionCookie,
   });
+  const tenantModule = createTenantModule({
+    mongoClient,
+    redisClient,
+    authGuard: identityModule.authGuard,
+  });
 
   app.use("/api/auth", identityModule.router);
+  app.use("/api/tenant", tenantModule.router);
   app.use(globalErrorHandler); //globalErrorHandler must be the last one
-  return { app, mongoClient, redisClient, identityModule };
+  return { app, mongoClient, redisClient, identityModule, tenantModule };
 }

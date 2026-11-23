@@ -37,6 +37,7 @@ export const makePrepareUser = (
         firstName: personalInfo.firstName,
         lastName: personalInfo.lastName,
       },
+      ownedTenantCount: 0,
       hashedPassword: hashedPassword,
       state: USER_STATUS.UNVERIFIED,
       passwordTokenHash: null,

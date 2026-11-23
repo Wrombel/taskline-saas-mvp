@@ -10,5 +10,6 @@ export * from "./domain/team.js";
 export * from "./contracts/identity/register.js";
 export * from "./contracts/identity/login.js";
 export * from "./contracts/identity/userProfile.js";
+export * from "./contracts/tenant/createTenant.js";
 export * from "./errors/unauthorized.error.js";
 export * from "./errors/validation.error.js";

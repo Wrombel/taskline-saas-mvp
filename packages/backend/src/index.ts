@@ -4,9 +4,9 @@ import { logger } from "#http";
 
 async function start() {
   try {
-    const { app, mongoClient, redisClient, identityModule } = await createApp(config);
+    const { app, mongoClient, redisClient, identityModule, tenantModule } = await createApp(config);
 
-    await Promise.all([identityModule.initDatabase()]);
+    await Promise.all([identityModule.initDatabase(), tenantModule.initDatabase()]);
 
     const server = app.listen(config.server.port, () => {
       logger.info(`Server listening on port ${config.server.port}`);

@@ -8,6 +8,11 @@ import type { UserAuth } from "../login/user-auth.js";
 
 export type UserRepository = {
   create(user: User, session: ClientSession): ResultAsync<void, UserAlreadyExistsError | DatabaseError>;
+  reserveOwnedTenantSlot(
+    userId: UserId,
+    limits: { unverified: number; active: number },
+    session: ClientSession,
+  ): ResultAsync<boolean, DatabaseError>;
   findByEmail(email: string): ResultAsync<User | null, DatabaseError | MappingError>;
   findById(userId: UserId): ResultAsync<User | null, DatabaseError | MappingError>;
   findUserProfileById(userId: UserId): ResultAsync<GetUserProfile | null, DatabaseError | MappingError>;
