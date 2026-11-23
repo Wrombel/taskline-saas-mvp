@@ -41,6 +41,7 @@ const insertUser = async (overrides: Partial<UserDb> = {}) => {
     _id: userId,
     email: "ada@example.com",
     fullName: { firstName: "Ada", lastName: "Lovelace" },
+    ownedTenantCount: 0,
     hashedPassword: "stored-hash",
     sessionVersion: 1,
     state: "active",

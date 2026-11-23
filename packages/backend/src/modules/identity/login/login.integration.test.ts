@@ -89,6 +89,7 @@ const seedUser = async (state: UserDb["state"] = "active") => {
     _id: userId,
     email: "ada@example.com",
     fullName: { firstName: "Ada", lastName: "Lovelace" },
+    ownedTenantCount: 0,
     hashedPassword: hashedPassword.value,
     sessionVersion: 1,
     state,

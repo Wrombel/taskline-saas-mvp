@@ -73,6 +73,7 @@ describe("POST /register integration", () => {
             id: "user-id" as UserId,
             email,
             fullName: personalInfo,
+            ownedTenantCount: 0,
             hashedPassword,
             sessionVersion: 1,
           } as User,
